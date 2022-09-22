@@ -56,8 +56,10 @@ public class MeshBall : MonoBehaviour {
 
 			}
 			SphericalHarmonicsL2[] lightProbes=new  SphericalHarmonicsL2[1023];
-			LightProbes.CalculateInterpolatedLightAndOcclusionProbes(positions, lightProbes,null);
+			Vector4[] shadowsProbes = new Vector4[1023];
+			LightProbes.CalculateInterpolatedLightAndOcclusionProbes(positions, lightProbes, shadowsProbes);
 			block.CopySHCoefficientArraysFrom(lightProbes);
+			block.CopyProbeOcclusionArrayFrom(shadowsProbes);
 		}
 		Graphics.DrawMeshInstanced(mesh, 0, material, matrices, 1023, block,UnityEngine.Rendering.ShadowCastingMode.On,true,0,null, lightProbeVolume? UnityEngine.Rendering.LightProbeUsage.UseProxyVolume : UnityEngine.Rendering.LightProbeUsage.CustomProvided, lightProbeVolume);
 	}

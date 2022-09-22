@@ -17,20 +17,22 @@ TEXTURE2D(unity_Lightmap);
 SAMPLER(samplerunity_Lightmap);
 TEXTURE3D_FLOAT(unity_ProbeVolumeSH);
 SAMPLER(samplerunity_ProbeVolumeSH);
-
+TEXTURE2D(unity_ShadowMask);
+SAMPLER(samplerunity_ShadowMask);
 
 struct GI {
 	//漫反射颜色
 	float3 diffuse ;
-
+    ShadowMask shadowMask;
 };
-float3 SampleLightProbe(Surface surfaceWS)
+float3 SampleLightProbe(float2 lightMapUV,Surface surfaceWS)
 {
    #if defined(LIGHTMAP_ON)
-   return 0.0;
+   return SAMPLE_TEXTURE2D(unity_Lightmap,samplerunity_Lightmap,lightMapUV);
    #else
     if (unity_ProbeVolumeParams.x)
     {
+
         return SampleProbeVolumeSH4(TEXTURE3D_ARGS(unity_ProbeVolumeSH, samplerunity_ProbeVolumeSH), surfaceWS.position, surfaceWS.normal,
         unity_ProbeVolumeWolrdToObject, unity_ProbeVolumeParams.y, unity_ProbeVolumeParams.z, unity_ProbeVolumeMin.xyz, unity_ProbeVolumeSizeInv.xyz);
 
@@ -67,11 +69,37 @@ float3 SampleLightmap(float2 lightMapUV)
   return 0.0;
   #endif
 }
+float4 SampleBackShadows(float2 lightMapUV,Surface surfaceWS)
+{
+   #if defined(LIGHTMAP_ON)
+   return SAMPLE_TEXTURE2D(unity_ShadowMask,samplerunity_ShadowMask,lightMapUV);
+   #else
+   if(unity_ProbeVolumeParams.x)
+    {
+        return SampleProbeOcclusion(
+                TEXTURE3D_ARGS(unity_ProbeVolumeSH, samplerunity_ProbeVolumeSH),
+                surfaceWS.position, unity_ProbeVolumeWolrdToObject,
+                unity_ProbeVolumeParams.y, unity_ProbeVolumeParams.z,
+                unity_ProbeVolumeMin.xyz, unity_ProbeVolumeSizeInv.xyz
+            );
+    }
+    else
+    {
+   return unity_ProbesOcclusion;
+   }
+   #endif
+}
 
 GI GetGI(Surface surfaceWS,float2 lightMapUV)
 {
 	GI gi;
-	gi.diffuse = SampleLightmap(lightMapUV)+SampleLightProbe(surfaceWS);
+	gi.diffuse = SampleLightmap(lightMapUV)+SampleLightProbe(lightMapUV,surfaceWS);
+     gi.shadowMask.distance=false;
+    gi.shadowMask.shadows=1.0;
+    #if defined(_SHADOW_MASK_DISTANCE)
+    gi.shadowMask.distance=true;
+    gi.shadowMask.shadows=SampleBackShadows(lightMapUV,surfaceWS);
+    #endif
 	return gi;
 }
 

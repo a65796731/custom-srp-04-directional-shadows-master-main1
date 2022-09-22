@@ -6,6 +6,7 @@ CBUFFER_START(UnityPerDraw)
 	float4x4 unity_WorldToObject;
 	float4 unity_LODFade;
 	real4 unity_WorldTransformParams;
+	float4 unity_ProbesOcclusion;
 	float4 unity_LightmapST;
 	float4 unity_DynamicLightmapST;
 	float4 unity_SHAr;
@@ -19,6 +20,9 @@ CBUFFER_START(UnityPerDraw)
     float4x4 unity_ProbeVolumeWolrdToObject;
     float4 unity_ProbeVolumeSizeInv;
     float4 unity_ProbeVolumeMin;
+
+	
+
 CBUFFER_END
 
 float4x4 unity_MatrixVP;
