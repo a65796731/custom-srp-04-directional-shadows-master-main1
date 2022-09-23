@@ -14,7 +14,7 @@
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
-#if defined(_SHADOW_MASK_DISTANCE)
+#if defined(_SHADOW_MASK_DISTANCE)|| defined(_SHADOW_MASK_ALWAYS)
     #define SHADOWS_SHADOWMASK
 #endif
 
